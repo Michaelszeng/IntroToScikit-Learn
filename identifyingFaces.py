@@ -1,6 +1,8 @@
 # python 3.7
 # Scikit-learn ver. 0.23.2
 from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import RidgeClassifier
+from sklearn.linear_model import SGDClassifier
 from sklearn.datasets import fetch_olivetti_faces
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import plot_confusion_matrix
@@ -21,7 +23,9 @@ dataY = data.target
 #30% of the total data will be for testing
 trainX, testX, trainY, testY = train_test_split(dataX, dataY, test_size = 0.3, shuffle = True)
 
-classifier = LogisticRegression(max_iter = 10000)
+classifier = SGDClassifier(max_iter = 10000)
+# classifier = RidgeClassifier(max_iter = 10000)
+# classifier = LogisticRegression(max_iter = 10000)
 classifier.fit(trainX, trainY)
 preds = classifier.predict(testX)
 

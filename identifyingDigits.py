@@ -4,13 +4,18 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.datasets import load_digits
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import plot_confusion_matrix
+from sklearn.preprocessing import scale
 from scipy.special import expit
 # matplotlib 3.3.1
 from matplotlib import pyplot
 
 digits = load_digits()  #Load Data Library
+print(digits)
 #digitsX = all the images
 digitsX = digits.images.reshape(len(digits.images), 64)
+print(digitsX)
+digitsX = scale(digitsX)
+print(digitsX)
 #digitsY = all the answers
 digitsY = digits.target
 
@@ -36,27 +41,27 @@ plot_confusion_matrix(classifier, testX, testY)
 pyplot.show()
 
 
-#Attemping to Plot
-pyplot.figure(1, figsize=(4, 3))
-pyplot.clf()
-pyplot.scatter(X.ravel(), y, color='black', zorder=20)
-X_test = np.linspace(-5, 10, 300)
-
-loss = expit(X_test * clf.coef_ + clf.intercept_).ravel()
-pyplot.plot(X_test, loss, color='red', linewidth=3)
-
-ols = linear_model.LinearRegression()
-ols.fit(X, y)
-pyplot.plot(X_test, ols.coef_ * X_test + ols.intercept_, linewidth=1)
-pyplot.axhline(.5, color='.5')
-
-pyplot.ylabel('y')
-pyplot.xlabel('X')
-pyplot.xticks(range(-5, 10))
-pyplot.yticks([0, 0.5, 1])
-pyplot.ylim(-.25, 1.25)
-pyplot.xlim(-4, 10)
-pyplot.legend(('Logistic Regression Model', 'Linear Regression Model'),
-           loc="lower right", fontsize='small')
-pyplot.tight_layout()
-pyplot.show()
+# #Attemping to Plot
+# pyplot.figure(1, figsize=(4, 3))
+# pyplot.clf()
+# pyplot.scatter(testX.ravel(), testY, color='black', zorder=20)
+# X_test = np.linspace(-5, 10, 300)
+#
+# loss = expit(X_test * clf.coef_ + clf.intercept_).ravel()
+# pyplot.plot(X_test, loss, color='red', linewidth=3)
+#
+# ols = linear_model.LinearRegression()
+# ols.fit(testX, testY)
+# pyplot.plot(X_test, ols.coef_ * X_test + ols.intercept_, linewidth=1)
+# pyplot.axhline(.5, color='.5')
+#
+# pyplot.ylabel('y')
+# pyplot.xlabel('X')
+# pyplot.xticks(range(-5, 10))
+# pyplot.yticks([0, 0.5, 1])
+# pyplot.ylim(-.25, 1.25)
+# pyplot.xlim(-4, 10)
+# pyplot.legend(('Logistic Regression Model', 'Linear Regression Model'),
+#            loc="lower right", fontsize='small')
+# pyplot.tight_layout()
+# pyplot.show()
