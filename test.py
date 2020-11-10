@@ -10,7 +10,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import confusion_matrix, classification_report, plot_confusion_matrix, accuracy_score
-from sklearn.preprocessing import StandardScaler, LabelEncoder, scale
+from sklearn.preprocessing import StandardScaler, RobustScaler, MaxAbsScaler, QuantileTransformer, PowerTransformer, LabelEncoder, scale
 from sklearn.model_selection import train_test_split
 
 def main():
@@ -65,7 +65,11 @@ def main():
     xTrain, xTest, yTrain, yTest = train_test_split(dataX, dataY, test_size = 0.25, shuffle = True)
 
     global sc
-    sc = StandardScaler()
+    # sc = StandardScaler()     #Linear Scale
+    # sc = RobustScaler()       #Moves Outliers Closer
+    # sc = MaxAbsScaler()       #Scaling Sparse Data
+    #sc = QuantileTransformer()  #Non-linear Scale to uniform distribution between 0 and 1
+    sc = PowerTransformer()     #Non-linear Scale to Gaussian Distribution
     xTrain = sc.fit_transform(xTrain)  #Find the parameters to scale the training data around 0
     xTest = sc.transform(xTest)     #Apply the same scaling using the same parameters to testing data
 
