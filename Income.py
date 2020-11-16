@@ -1,6 +1,6 @@
 # python 3.7
 # Scikit-learn ver. 0.23.2
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression, SGDClassifier
 from scipy.special import expit
 # matplotlib 3.3.1
 import matplotlib.pyplot as plt
@@ -12,6 +12,15 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import confusion_matrix, classification_report, plot_confusion_matrix, accuracy_score
 from sklearn.preprocessing import StandardScaler, RobustScaler, MaxAbsScaler, QuantileTransformer, PowerTransformer, LabelEncoder, scale
 from sklearn.model_selection import train_test_split
+
+
+"""
+TO DO:
+ - try to run predictNew with the same data and see if the accuracy is the same
+ - test different classifiers and scalers
+ - Play with vars on MLPClassifier
+"""
+
 
 def main():
     data = pd.read_csv('adult.csv', sep=',')
@@ -38,15 +47,25 @@ def main():
     global genderStrIntCorrespondence
     global nativeCountryStrIntCorrespondence
     global incomeStrIntCorrespondence
-    data['workclass'], workclassStrIntCorrespondence = convertStrInt(data['workclass'])
-    data['education'], educationStrIntCorrespondence = convertStrInt(data['education'])
-    data['marital-status'], maritalStatusStrIntCorrespondence = convertStrInt(data['marital-status'])
-    data['occupation'], occupationStrIntCorrespondence = convertStrInt(data['occupation'])
-    data['relationship'], relationshipStrIntCorrespondence = convertStrInt(data['relationship'])
-    data['race'], raceStrIntCorrespondence = convertStrInt(data['race'])
-    data['gender'], genderStrIntCorrespondence = convertStrInt(data['gender'])
-    data['native-country'], nativeCountryStrIntCorrespondence = convertStrInt(data['native-country'])
-    data['income'], incomeStrIntCorrespondence = convertStrInt(data['income'])
+    #Possible values were found in the Preprecessing program and organized manually
+    workclassStrIntCorrespondence = ['Never-worked', 'Without-pay', 'Local-gov', 'State-gov', 'Federal-gov', 'Private', 'Self-emp-not-inc', 'Self-emp-inc']
+    educationStrIntCorrespondence = ['Preschool', '1st-4th', '5th-6th', '7th-8th', '9th', '10th', '11th', '12th', 'HS-grad', 'Prof-school', 'Assoc-acdm', 'Assoc-voc', 'Some-college', 'Bachelors', 'Masters', 'Doctorate']
+    maritalStatusStrIntCorrespondence = ['Never-married', 'Divorced', 'Separated', 'Married-AF-spouse', 'Married-civ-spouse',  'Widowed', 'Married-spouse-absent']
+    occupationStrIntCorrespondence = [ 'Handlers-cleaners', 'Armed-Forces', 'Priv-house-serv', 'Farming-fishing', 'Protective-serv', 'Tech-support',  'Craft-repair', 'Sales', 'Adm-clerical', 'Machine-op-inspct', 'Other-service', 'Transport-moving', 'Prof-specialty', 'Exec-managerial']
+    relationshipStrIntCorrespondence = ['Not-in-family', 'Other-relative' 'Unmarried', 'Own-child', 'Husband', 'Wife', ]
+    raceStrIntCorrespondence = ['Black',  'Amer-Indian-Eskimo', 'Other', 'Asian-Pac-Islander', 'White']
+    genderStrIntCorrespondence = ['Female', 'Male']
+    nativeCountryStrIntCorrespondence = [ 'Trinadad&Tobago', 'Haiti', 'India', 'Nicaragua', 'Honduras', 'Jamaica', 'Ecuador', 'Yugoslavia', 'Columbia', 'Cambodia', 'Peru', 'Guatemala', 'Mexico', 'Dominican-Republic', 'Philippines', 'Thailand', 'El-Salvador', 'Puerto-Rico', 'Vietnam', 'South', 'Outlying-US(Guam-USVI-etc)', 'Columbia', 'Japan', 'Poland', 'Laos', 'England', 'Cuba', 'Taiwan', 'Italy', 'Canada', 'Portugal', 'China', 'Iran', 'Scotland', 'Hungary', 'Hong', 'Greece', 'France', 'Ireland', 'Germany', 'Holand-Netherlands', 'United-States']
+    incomeStrIntCorrespondence = ['<=50K', '>50K']
+    data['workclass'] = convertStrInt(data['workclass'], workclassStrIntCorrespondence)
+    data['education'] = convertStrInt(data['education'], educationStrIntCorrespondence)
+    data['marital-status'] = convertStrInt(data['marital-status'], maritalStatusStrIntCorrespondence)
+    data['occupation'] = convertStrInt(data['occupation'], occupationStrIntCorrespondence)
+    data['relationship'] = convertStrInt(data['relationship'], relationshipStrIntCorrespondence)
+    data['race'] = convertStrInt(data['race'], raceStrIntCorrespondence)
+    data['gender'] = convertStrInt(data['gender'], genderStrIntCorrespondence)
+    data['native-country'] = convertStrInt(data['native-country'], nativeCountryStrIntCorrespondence)
+    data['income'] = convertStrInt(data['income'], incomeStrIntCorrespondence)
     print(data['income'])
 
     print(data.head(10))
@@ -68,7 +87,7 @@ def main():
     # sc = StandardScaler()     #Linear Scale
     # sc = RobustScaler()       #Moves Outliers Closer
     # sc = MaxAbsScaler()       #Scaling Sparse Data
-    #sc = QuantileTransformer()  #Non-linear Scale to uniform distribution between 0 and 1
+    # sc = QuantileTransformer()  #Non-linear Scale to uniform distribution between 0 and 1
     sc = PowerTransformer()     #Non-linear Scale to Gaussian Distribution
     xTrain = sc.fit_transform(xTrain)  #Find the parameters to scale the training data around 0
     xTest = sc.transform(xTest)     #Apply the same scaling using the same parameters to testing data
@@ -91,7 +110,7 @@ def main():
 
 
     global mlpc
-    mlpc = MLPClassifier(hidden_layer_sizes=(10, 10, 10), max_iter=10000)
+    mlpc = MLPClassifier(hidden_layer_sizes=(16, 8, 4), max_iter=10000)
     mlpc.fit(xTrain, yTrain)
     predMlpc = mlpc.predict(xTest)
 
@@ -111,17 +130,16 @@ def main():
     predictNew(18, "Private", 168288, "HS-grad", 9, "Never-married", "Handlers-cleaners", "Own-child", "White", "Male", 0, 0, 40, "United-States")
     predictNew(42, "Self-emp-not-inc", 174216, "Prof-school", 15, "Married-civ-spouse", "Prof-specialty", "Husband", "White", "Male", 0, 0, 38, "United-States")
 
-def convertStrInt(column):
+def convertStrInt(column, possibleValues):
     newColumn = []
-    featureValues = []
     for feature in column:
-        if feature not in featureValues:
-            featureValues.append(feature)
-            newColumn.append(len(featureValues) - 1)
+        if feature not in possibleValues:
+            possibleValues.append(feature)
+            newColumn.append(len(possibleValues) - 1)
         else:
-            newColumn.append(featureValues.index(feature))
+            newColumn.append(possibleValues.index(feature))
     # print("len(column): " + str(len(column)))
-    return newColumn, featureValues
+    return newColumn
 
 def convertNewStrInt(str, list):
     try:
